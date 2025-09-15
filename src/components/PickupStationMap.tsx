@@ -45,7 +45,7 @@ export function PickupStationMap({ stations, selectedStation }: PickupStationMap
 
     map.current = L.map(mapContainer.current).setView(DEFAULT_CENTER, 10);
 
-    // Tile layer with fallback
+    // Tile layer
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       attribution: '&copy; OpenStreetMap contributors'
     }).addTo(map.current);
@@ -56,7 +56,7 @@ export function PickupStationMap({ stations, selectedStation }: PickupStationMap
     };
   }, []);
 
-  // Update markers when stations change
+  // Update markers
   useEffect(() => {
     if (!map.current) return;
 
@@ -79,6 +79,14 @@ export function PickupStationMap({ stations, selectedStation }: PickupStationMap
             <p style="font-size: 12px; color: #666; margin-bottom: 4px;">📞 ${station.number}</p>
             <p style="font-size: 12px; color: #666;">⏰ ${station.timeOpenedWeek}</p>
             ${station.landmark ? `<p style="font-size: 12px; color: #888; margin-top: 4px;">📍 ${station.landmark}</p>` : ''}
+            <a 
+              href="https://www.google.com/maps/dir/?api=1&origin=Current+Location&destination=${lat},${lng}" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              style="display:inline-block; margin-top:8px; font-size:13px; color:#2563eb; font-weight:500; text-decoration:underline;"
+            >
+              🧭 Get Directions
+            </a>
           </div>
         `)
         .addTo(map.current!);
@@ -86,7 +94,7 @@ export function PickupStationMap({ stations, selectedStation }: PickupStationMap
       markers.current.push(marker);
     });
 
-    // Adjust view
+    // Fit bounds
     if (markers.current.length > 0) {
       const group = new L.FeatureGroup(markers.current);
       map.current.fitBounds(group.getBounds(), { padding: [20, 20] });
@@ -94,11 +102,10 @@ export function PickupStationMap({ stations, selectedStation }: PickupStationMap
       map.current.setView(DEFAULT_CENTER, 10);
     }
 
-    // Ensure map resizes correctly
     setTimeout(() => map.current?.invalidateSize(), 200);
   }, [stations, selectedStation]);
 
-  // Center on selected station
+  // Focus on selected station
   useEffect(() => {
     if (!map.current || !selectedStation) return;
 
