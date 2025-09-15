@@ -81,21 +81,22 @@ export function PickupStationMap({ stations, selectedStation }: PickupStationMap
         !isNaN(lat) && !isNaN(lng) ? [lat, lng] : DEFAULT_CENTER,
         { icon }
       ).bindPopup(`
-        <div style="padding: 8px; min-width: 200px;">
+        <div style="padding: 8px; min-width: 220px;">
           <h3 style="font-weight: 600; font-size: 14px; margin-bottom: 4px;">${station.name}</h3>
           <p style="font-size: 12px; color: #666; margin-bottom: 4px;">${station.address}</p>
           <p style="font-size: 12px; color: #666; margin-bottom: 4px;">📞 ${station.number}</p>
-          <p style="font-size: 12px; color: #666;">⏰ ${station.timeOpenedWeek}</p>
+          <p style="font-size: 12px; color: #666; margin-bottom: 2px;">⏰ <strong>Weekdays:</strong> ${station.week || "Closed"}</p>
+          <p style="font-size: 12px; color: #666; margin-bottom: 4px;">⏰ <strong>Weekends:</strong> ${station.weekend || "Closed"}</p>
           ${station.landmark ? `<p style="font-size: 12px; color: #888; margin-top: 4px;">📍 ${station.landmark}</p>` : ''}
           ${directionsLink
           ? `<a 
-                   href="${directionsLink}" 
-                   target="_blank" 
-                   rel="noopener noreferrer"
-                   style="display:inline-block; margin-top:8px; font-size:13px; color:#2563eb; font-weight:500; text-decoration:underline;"
-                 >
-                   🧭 Get Directions
-                 </a>`
+                href="${directionsLink}" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                style="display:inline-block; margin-top:8px; font-size:13px; color:#2563eb; font-weight:500; text-decoration:underline;"
+              >
+                🧭 Get Directions
+              </a>`
           : ""
         }
         </div>

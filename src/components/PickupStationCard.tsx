@@ -35,14 +35,14 @@ export function PickupStationCard({ station, onViewOnMap }: PickupStationCardPro
             <Clock className="h-4 w-4 text-jumia-orange" />
             <div className="text-sm">
               <div className="font-medium text-jumia-dark">Weekdays</div>
-              <div className="text-jumia-gray">{station.timeOpenedWeek}</div>
+              <div className="text-jumia-gray">{station.week}</div>
             </div>
           </div>
           <div className="flex items-center gap-2">
             <Clock className="h-4 w-4 text-jumia-orange" />
             <div className="text-sm">
               <div className="font-medium text-jumia-dark">Weekends</div>
-              <div className="text-jumia-gray">{station.timeOpenedWeekend}</div>
+              <div className="text-jumia-gray">{station.weekend}</div>
             </div>
           </div>
         </div>
@@ -65,7 +65,7 @@ export function PickupStationCard({ station, onViewOnMap }: PickupStationCardPro
         <div className="flex gap-2 pt-2">
           <Button
             size="sm"
-            onClick={() => onViewOnMap?.(station)} // Safe check if handler exists
+            onClick={() => onViewOnMap?.(station)}
             className="flex-1 bg-black text-white hover:bg-black/90"
           >
             <Navigation className="h-4 w-4 mr-2" />
@@ -85,7 +85,6 @@ export function PickupStationCard({ station, onViewOnMap }: PickupStationCardPro
             </a>
           </Button>
         </div>
-
       </CardContent>
     </Card>
   );
