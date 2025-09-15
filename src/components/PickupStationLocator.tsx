@@ -1,23 +1,20 @@
 import { useState, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Search, MapPin, Loader2 } from "lucide-react";
 import { PickupStation } from "@/types/pickup-station";
 import { PickupStationCard } from "./PickupStationCard";
-import { PickupStationMap } from "./PickupStationMap";
 import { JumiaInfoSection } from "./JumiaInfoSection";
 import { fetchPickupStations } from "@/services/googleSheets";
 
 export function PickupStationLocator() {
   const [stations, setStations] = useState<PickupStation[]>([]);
   const [filteredStations, setFilteredStations] = useState<PickupStation[]>([]);
-  const [selectedStation, setSelectedStation] = useState<PickupStation>();
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedState, setSelectedState] = useState<string>("");
   const [loading, setLoading] = useState(true);
-  const [viewMode, setViewMode] = useState<'list' | 'map'>('list');
 
   useEffect(() => {
     loadStations();
@@ -30,7 +27,7 @@ export function PickupStationLocator() {
       setStations(data);
       setFilteredStations(data);
     } catch (error) {
-      console.error('Failed to load stations:', error);
+      console.error("Failed to load stations:", error);
     } finally {
       setLoading(false);
     }
@@ -40,26 +37,22 @@ export function PickupStationLocator() {
     let filtered = stations;
 
     if (searchQuery) {
-      filtered = filtered.filter(station =>
-        station.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        station.address.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        station.landmark.toLowerCase().includes(searchQuery.toLowerCase())
+      filtered = filtered.filter(
+        (station) =>
+          station.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          station.address.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          station.landmark.toLowerCase().includes(searchQuery.toLowerCase())
       );
     }
 
     if (selectedState) {
-      filtered = filtered.filter(station => station.state === selectedState);
+      filtered = filtered.filter((station) => station.state === selectedState);
     }
 
     setFilteredStations(filtered);
   }, [searchQuery, selectedState, stations]);
 
-  const uniqueStates = Array.from(new Set(stations.map(station => station.state)));
-
-  const handleViewOnMap = (station: PickupStation) => {
-    setSelectedStation(station);
-    setViewMode('map');
-  };
+  const uniqueStates = Array.from(new Set(stations.map((station) => station.state)));
 
   if (loading) {
     return (
@@ -111,7 +104,7 @@ export function PickupStationLocator() {
               >
                 All States
               </Button>
-              {uniqueStates.map(state => (
+              {uniqueStates.map((state) => (
                 <Button
                   key={state}
                   variant={selectedState === state ? "default" : "outline"}
@@ -122,28 +115,6 @@ export function PickupStationLocator() {
                   {state}
                 </Button>
               ))}
-            </div>
-          </div>
-
-          {/* View Toggle */}
-          <div className="flex justify-center mt-6">
-            <div className="flex gap-1 p-1 bg-jumia-light-gray rounded-lg">
-              <Button
-                variant={viewMode === 'list' ? "default" : "ghost"}
-                size="sm"
-                onClick={() => setViewMode('list')}
-                className={viewMode === 'list' ? "bg-jumia-orange hover:bg-jumia-orange/90" : "hover:bg-white"}
-              >
-                List View
-              </Button>
-              <Button
-                variant={viewMode === 'map' ? "default" : "ghost"}
-                size="sm"
-                onClick={() => setViewMode('map')}
-                className={viewMode === 'map' ? "bg-jumia-orange hover:bg-jumia-orange/90" : "hover:bg-white"}
-              >
-                Map View
-              </Button>
             </div>
           </div>
         </div>
@@ -158,40 +129,28 @@ export function PickupStationLocator() {
           <div className="flex items-center gap-2">
             <MapPin className="h-5 w-5 text-jumia-orange" />
             <span className="text-sm text-jumia-gray">
-              {filteredStations.length} pickup station{filteredStations.length !== 1 ? 's' : ''} found
+              {filteredStations.length} pickup station{filteredStations.length !== 1 ? "s" : ""} found
             </span>
           </div>
-          {selectedStation && viewMode === 'map' && (
-            <Badge variant="secondary" className="bg-jumia-orange/10 text-jumia-orange">
-              Viewing: {selectedStation.name}
-            </Badge>
-          )}
         </div>
 
-        {viewMode === 'list' ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredStations.map((station, index) => (
-              <PickupStationCard
-                key={`${station.name}-${index}`}
-                station={station}
-                onViewOnMap={handleViewOnMap}
-              />
-            ))}
-          </div>
-        ) : (
-          <div className="h-[600px]">
-            <PickupStationMap
-              stations={filteredStations}
-              selectedStation={selectedStation}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {filteredStations.map((station, index) => (
+            <PickupStationCard
+              key={`${station.name}-${index}`}
+              station={station}
+              onViewOnMap={() => { }}
             />
-          </div>
-        )}
+          ))}
+        </div>
 
         {filteredStations.length === 0 && (
           <Card className="text-center py-12 border-border/50">
             <CardContent>
               <MapPin className="h-12 w-12 text-jumia-gray mx-auto mb-4" />
-              <h3 className="text-lg font-semibold mb-2 text-jumia-dark">No stations found</h3>
+              <h3 className="text-lg font-semibold mb-2 text-jumia-dark">
+                No stations found
+              </h3>
               <p className="text-jumia-gray">
                 Try adjusting your search criteria or clearing filters
               </p>
