@@ -4,7 +4,7 @@ import 'leaflet/dist/leaflet.css';
 import { PickupStation } from "@/types/pickup-station";
 import { Card } from "@/components/ui/card";
 
-// Default Lagos coords as fallback
+// Default Lagos coords as fallback for map view
 const DEFAULT_CENTER: [number, number] = [6.5244, 3.3792];
 
 // Fix for default markers in Leaflet
@@ -39,13 +39,18 @@ export function PickupStationMap({ stations, selectedStation }: PickupStationMap
   const map = useRef<L.Map | null>(null);
   const markers = useRef<L.Marker[]>([]);
 
+  // Helper: Build Google Maps link safely
+  const buildDirectionsLink = (lat: number, lng: number) => {
+    if (isNaN(lat) || isNaN(lng)) return "";
+    return `https://www.google.com/maps/dir/?api=1&origin=Current+Location&destination=${lat},${lng}`;
+  };
+
   // Initialize map
   useEffect(() => {
     if (!mapContainer.current) return;
 
     map.current = L.map(mapContainer.current).setView(DEFAULT_CENTER, 10);
 
-    // Tile layer
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       attribution: '&copy; OpenStreetMap contributors'
     }).addTo(map.current);
@@ -68,33 +73,38 @@ export function PickupStationMap({ stations, selectedStation }: PickupStationMap
       const isSelected = selectedStation?.name === station.name;
       const icon = isSelected ? selectedIcon : defaultIcon;
 
-      const lat = parseFloat(String(station.latitude)) || DEFAULT_CENTER[0];
-      const lng = parseFloat(String(station.longitude)) || DEFAULT_CENTER[1];
+      const lat = parseFloat(String(station.latitude));
+      const lng = parseFloat(String(station.longitude));
+      const directionsLink = buildDirectionsLink(lat, lng);
 
-      const marker = L.marker([lat, lng], { icon })
-        .bindPopup(`
-          <div style="padding: 8px; min-width: 200px;">
-            <h3 style="font-weight: 600; font-size: 14px; margin-bottom: 4px;">${station.name}</h3>
-            <p style="font-size: 12px; color: #666; margin-bottom: 4px;">${station.address}</p>
-            <p style="font-size: 12px; color: #666; margin-bottom: 4px;">📞 ${station.number}</p>
-            <p style="font-size: 12px; color: #666;">⏰ ${station.timeOpenedWeek}</p>
-            ${station.landmark ? `<p style="font-size: 12px; color: #888; margin-top: 4px;">📍 ${station.landmark}</p>` : ''}
-            <a 
-              href="https://www.google.com/maps/dir/?api=1&origin=Current+Location&destination=${lat},${lng}" 
-              target="_blank" 
-              rel="noopener noreferrer"
-              style="display:inline-block; margin-top:8px; font-size:13px; color:#2563eb; font-weight:500; text-decoration:underline;"
-            >
-              🧭 Get Directions
-            </a>
-          </div>
-        `)
-        .addTo(map.current!);
+      const marker = L.marker(
+        !isNaN(lat) && !isNaN(lng) ? [lat, lng] : DEFAULT_CENTER,
+        { icon }
+      ).bindPopup(`
+        <div style="padding: 8px; min-width: 200px;">
+          <h3 style="font-weight: 600; font-size: 14px; margin-bottom: 4px;">${station.name}</h3>
+          <p style="font-size: 12px; color: #666; margin-bottom: 4px;">${station.address}</p>
+          <p style="font-size: 12px; color: #666; margin-bottom: 4px;">📞 ${station.number}</p>
+          <p style="font-size: 12px; color: #666;">⏰ ${station.timeOpenedWeek}</p>
+          ${station.landmark ? `<p style="font-size: 12px; color: #888; margin-top: 4px;">📍 ${station.landmark}</p>` : ''}
+          ${directionsLink
+          ? `<a 
+                   href="${directionsLink}" 
+                   target="_blank" 
+                   rel="noopener noreferrer"
+                   style="display:inline-block; margin-top:8px; font-size:13px; color:#2563eb; font-weight:500; text-decoration:underline;"
+                 >
+                   🧭 Get Directions
+                 </a>`
+          : ""
+        }
+        </div>
+      `).addTo(map.current!);
 
       markers.current.push(marker);
     });
 
-    // Fit bounds
+    // Fit view
     if (markers.current.length > 0) {
       const group = new L.FeatureGroup(markers.current);
       map.current.fitBounds(group.getBounds(), { padding: [20, 20] });
@@ -109,10 +119,12 @@ export function PickupStationMap({ stations, selectedStation }: PickupStationMap
   useEffect(() => {
     if (!map.current || !selectedStation) return;
 
-    const lat = parseFloat(String(selectedStation.latitude)) || DEFAULT_CENTER[0];
-    const lng = parseFloat(String(selectedStation.longitude)) || DEFAULT_CENTER[1];
+    const lat = parseFloat(String(selectedStation.latitude));
+    const lng = parseFloat(String(selectedStation.longitude));
 
-    map.current.setView([lat, lng], 15);
+    if (!isNaN(lat) && !isNaN(lng)) {
+      map.current.setView([lat, lng], 15);
+    }
   }, [selectedStation]);
 
   return (
