@@ -14,7 +14,7 @@ export function JumiaInfoSection() {
                 <div>
                   <h3 className="font-semibold text-lg mb-2 text-jumia-dark">Delivery Timeline</h3>
                   <p className="text-jumia-gray leading-relaxed">
-                    Delivery time starts from the day you place your order to when you receive the first SMS to pick up your order from our pickup station. Ensure you pickup your item within 5 days, otherwise it will be cancelled.
+                    Delivery time starts from the day you place your order to when you receive the first SMS to pick up your order from our pickup station. Ensure you pickup your item within 5 business days, otherwise it will be cancelled.
                   </p>
                 </div>
               </div>
@@ -52,7 +52,7 @@ export function JumiaInfoSection() {
           </Card>
 
           {/* Safety Measures */}
-          <Card className="border-none shadow-card">
+          {/* <Card className="border-none shadow-card">
             <CardContent className="p-6">
               <div className="flex items-start gap-3">
                 <Shield className="h-6 w-6 text-jumia-orange mt-1 flex-shrink-0" />
@@ -75,7 +75,7 @@ export function JumiaInfoSection() {
                 </div>
               </div>
             </CardContent>
-          </Card>
+          </Card> */}
         </div>
       </div>
     </div>
