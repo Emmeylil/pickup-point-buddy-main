@@ -4,6 +4,9 @@ import 'leaflet/dist/leaflet.css';
 import { PickupStation } from "@/types/pickup-station";
 import { Card } from "@/components/ui/card";
 
+// Default Lagos coords as fallback
+const DEFAULT_CENTER: [number, number] = [6.5244, 3.3792];
+
 // Fix for default markers in Leaflet
 const defaultIcon = L.icon({
   iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon.png',
@@ -40,20 +43,16 @@ export function PickupStationMap({ stations, selectedStation }: PickupStationMap
   useEffect(() => {
     if (!mapContainer.current) return;
 
-    // Create map
-    map.current = L.map(mapContainer.current).setView([6.5244, 3.3792], 10);
+    map.current = L.map(mapContainer.current).setView(DEFAULT_CENTER, 10);
 
-    // Add tile layer
+    // Tile layer with fallback
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+      attribution: '&copy; OpenStreetMap contributors'
     }).addTo(map.current);
 
-    // Cleanup
     return () => {
-      if (map.current) {
-        map.current.remove();
-        map.current = null;
-      }
+      map.current?.remove();
+      map.current = null;
     };
   }, []);
 
@@ -61,16 +60,18 @@ export function PickupStationMap({ stations, selectedStation }: PickupStationMap
   useEffect(() => {
     if (!map.current) return;
 
-    // Clear existing markers
+    // Clear old markers
     markers.current.forEach(marker => marker.remove());
     markers.current = [];
 
-    // Add new markers
     stations.forEach((station) => {
       const isSelected = selectedStation?.name === station.name;
       const icon = isSelected ? selectedIcon : defaultIcon;
 
-      const marker = L.marker([station.latitude, station.longitude], { icon })
+      const lat = parseFloat(String(station.latitude)) || DEFAULT_CENTER[0];
+      const lng = parseFloat(String(station.longitude)) || DEFAULT_CENTER[1];
+
+      const marker = L.marker([lat, lng], { icon })
         .bindPopup(`
           <div style="padding: 8px; min-width: 200px;">
             <h3 style="font-weight: 600; font-size: 14px; margin-bottom: 4px;">${station.name}</h3>
@@ -80,31 +81,38 @@ export function PickupStationMap({ stations, selectedStation }: PickupStationMap
             ${station.landmark ? `<p style="font-size: 12px; color: #888; margin-top: 4px;">📍 ${station.landmark}</p>` : ''}
           </div>
         `)
-        .addTo(map.current);
+        .addTo(map.current!);
 
       markers.current.push(marker);
     });
 
-    // Fit bounds to show all markers
-    if (stations.length > 0) {
+    // Adjust view
+    if (markers.current.length > 0) {
       const group = new L.FeatureGroup(markers.current);
       map.current.fitBounds(group.getBounds(), { padding: [20, 20] });
+    } else {
+      map.current.setView(DEFAULT_CENTER, 10);
     }
+
+    // Ensure map resizes correctly
+    setTimeout(() => map.current?.invalidateSize(), 200);
   }, [stations, selectedStation]);
 
-  // Handle selected station
+  // Center on selected station
   useEffect(() => {
     if (!map.current || !selectedStation) return;
 
-    // Center map on selected station
-    map.current.setView([selectedStation.latitude, selectedStation.longitude], 15);
+    const lat = parseFloat(String(selectedStation.latitude)) || DEFAULT_CENTER[0];
+    const lng = parseFloat(String(selectedStation.longitude)) || DEFAULT_CENTER[1];
+
+    map.current.setView([lat, lng], 15);
   }, [selectedStation]);
 
   return (
-    <Card className="h-full overflow-hidden">
-      <div 
-        ref={mapContainer} 
-        className="w-full h-full min-h-[400px]"
+    <Card className="h-[500px] overflow-hidden">
+      <div
+        ref={mapContainer}
+        className="w-full h-full"
         style={{ borderRadius: '8px' }}
       />
     </Card>

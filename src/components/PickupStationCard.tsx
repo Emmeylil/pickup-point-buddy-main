@@ -65,7 +65,7 @@ export function PickupStationCard({ station, onViewOnMap }: PickupStationCardPro
         <div className="flex gap-2 pt-2">
           <Button
             size="sm"
-            onClick={() => onViewOnMap(station)}
+            onClick={() => onViewOnMap?.(station)} // Safe check if handler exists
             className="flex-1 bg-black text-white hover:bg-black/90"
           >
             <Navigation className="h-4 w-4 mr-2" />
@@ -77,7 +77,7 @@ export function PickupStationCard({ station, onViewOnMap }: PickupStationCardPro
             className="flex-1 bg-black text-white hover:bg-black/90"
           >
             <a
-              href={`https://maps.google.com/maps?q=${station.latitude},${station.longitude}`}
+              href={`https://www.google.com/maps/dir/?api=1&destination=${station.latitude},${station.longitude}`}
               target="_blank"
               rel="noopener noreferrer"
             >
