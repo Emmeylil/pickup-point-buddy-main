@@ -35,14 +35,14 @@ export function PickupStationCard({ station, onViewOnMap }: PickupStationCardPro
             <Clock className="h-4 w-4 text-jumia-orange" />
             <div className="text-sm">
               <div className="font-medium text-jumia-dark">Weekdays</div>
-              <div className="text-jumia-gray">{station.week}</div>
+              <div className="text-jumia-gray">{station.timeOpenedWeek}</div>
             </div>
           </div>
           <div className="flex items-center gap-2">
             <Clock className="h-4 w-4 text-jumia-orange" />
             <div className="text-sm">
               <div className="font-medium text-jumia-dark">Weekends</div>
-              <div className="text-jumia-gray">{station.weekend}</div>
+              <div className="text-jumia-gray">{station.timeOpenedWeekend}</div>
             </div>
           </div>
         </div>

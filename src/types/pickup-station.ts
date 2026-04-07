@@ -1,7 +1,7 @@
 export interface PickupStation {
   name: string;
-  week: string;         // 👈 change here
-  weekend: string;      // 👈 change here
+  timeOpenedWeek: string;
+  timeOpenedWeekend: string;
   number: string;
   address: string;
   state: string;

@@ -85,8 +85,8 @@ export function PickupStationMap({ stations, selectedStation }: PickupStationMap
           <h3 style="font-weight: 600; font-size: 14px; margin-bottom: 4px;">${station.name}</h3>
           <p style="font-size: 12px; color: #666; margin-bottom: 4px;">${station.address}</p>
           <p style="font-size: 12px; color: #666; margin-bottom: 4px;">📞 ${station.number}</p>
-          <p style="font-size: 12px; color: #666; margin-bottom: 2px;">⏰ <strong>Weekdays:</strong> ${station.week || "Closed"}</p>
-          <p style="font-size: 12px; color: #666; margin-bottom: 4px;">⏰ <strong>Weekends:</strong> ${station.weekend || "Closed"}</p>
+          <p style="font-size: 12px; color: #666; margin-bottom: 2px;">⏰ <strong>Weekdays:</strong> ${station.timeOpenedWeek || "Closed"}</p>
+          <p style="font-size: 12px; color: #666; margin-bottom: 4px;">⏰ <strong>Weekends:</strong> ${station.timeOpenedWeekend || "Closed"}</p>
           ${station.landmark ? `<p style="font-size: 12px; color: #888; margin-top: 4px;">📍 ${station.landmark}</p>` : ''}
           ${directionsLink
           ? `<a 
