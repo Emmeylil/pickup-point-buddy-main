@@ -2,7 +2,7 @@ import { PickupStation } from "@/types/pickup-station";
 
 export async function fetchPickupStations(): Promise<PickupStation[]> {
   try {
-    const url = "https://script.google.com/macros/s/AKfycbxzlmIKMT0beysDKKgcTat_grcgOt8bHRw_yDhFJi74EBuwPkeKBclJPtaS9ScivWBF/exec";
+    const url = "http://localhost:5000/api/pickup-stations";
 
     const response = await fetch(url);
     if (!response.ok) throw new Error(`HTTP error ${response.status}`);
