@@ -5,15 +5,16 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
-import { Plus, Pencil, Trash2, ArrowLeft, Loader2 } from "lucide-react";
+import { Plus, Pencil, Trash2, ArrowLeft, Loader2, RotateCw } from "lucide-react";
 import { Link } from "react-router-dom";
 import { PickupStation } from "@/types/pickup-station";
-import { fetchPickupStations, createPickupStation, updatePickupStation, deletePickupStation } from "@/services/googleSheets";
+import { fetchPickupStations, createPickupStation, updatePickupStation, deletePickupStation, syncGoogleSheets } from "@/services/googleSheets";
 import { toast } from "sonner";
 
 export default function Admin() {
   const [stations, setStations] = useState<PickupStation[]>([]);
   const [loading, setLoading] = useState(true);
+  const [syncing, setSyncing] = useState(false);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingStation, setEditingStation] = useState<PickupStation | null>(null);
   const [formData, setFormData] = useState<Partial<PickupStation>>({});
@@ -73,6 +74,21 @@ export default function Admin() {
     }
   };
 
+  const handleSync = async () => {
+    setSyncing(true);
+    try {
+      const result = await syncGoogleSheets();
+      if (result.success) {
+        toast.success(`Synced ${result.count} stations from Google Sheets`);
+        loadStations();
+      }
+    } catch (error) {
+      toast.error("Failed to sync with Google Sheets");
+    } finally {
+      setSyncing(false);
+    }
+  };
+
   const openAddDialog = () => {
     setEditingStation(null);
     setFormData({});
@@ -104,9 +120,24 @@ export default function Admin() {
           </Link>
           <h1 className="text-3xl font-bold text-jumia-dark">Admin Dashboard</h1>
         </div>
-        <Button onClick={openAddDialog} className="bg-jumia-orange hover:bg-jumia-orange/90">
-          <Plus className="h-4 w-4 mr-2" /> Add Station
-        </Button>
+        <div className="flex gap-2">
+          <Button 
+            variant="outline" 
+            onClick={handleSync} 
+            disabled={syncing}
+            className="border-jumia-orange text-jumia-orange hover:bg-jumia-orange/10"
+          >
+            {syncing ? (
+              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+            ) : (
+              <RotateCw className="h-4 w-4 mr-2" />
+            )}
+            Sync from Google Sheet
+          </Button>
+          <Button onClick={openAddDialog} className="bg-jumia-orange hover:bg-jumia-orange/90">
+            <Plus className="h-4 w-4 mr-2" /> Add Station
+          </Button>
+        </div>
       </div>
 
       <Card className="border-border/50">

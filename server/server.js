@@ -148,6 +148,54 @@ app.delete('/api/pickup-stations/:id', (req, res) => {
   }
 });
 
+app.post('/api/sync', async (req, res) => {
+  const SHEET_URL = "https://script.google.com/macros/s/AKfycbxzlmIKMT0beysDKKgcTat_grcgOt8bHRw_yDhFJi74EBuwPkeKBclJPtaS9ScivWBF/exec";
+  
+  try {
+    console.log('Starting sync from Google Sheets...');
+    const response = await fetch(SHEET_URL);
+    if (!response.ok) throw new Error(`HTTP error ${response.status}`);
+    
+    const data = await response.json();
+    if (!Array.isArray(data)) throw new Error('Invalid data format from Google Sheets');
+
+    const syncTransaction = db.transaction((stations) => {
+      // Clear existing stations or handle updates. 
+      // For simplicity in a 'sync', we'll clear and re-insert, 
+      // or you could match by name/address. 
+      // The user likely wants the local DB to match the sheet.
+      db.prepare('DELETE FROM pickup_stations').run();
+      
+      const insert = db.prepare(`
+        INSERT INTO pickup_stations (name, timeOpenedWeek, timeOpenedWeekend, number, address, state, email, landmark, latitude, longitude)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      `);
+
+      for (const s of stations) {
+        insert.run(
+          s.name, 
+          s.timeOpenedWeek || s.week, // Handle potential property name differences
+          s.timeOpenedWeekend || s.weekend, 
+          s.number, 
+          s.address, 
+          s.state, 
+          s.email, 
+          s.landmark, 
+          parseFloat(String(s.latitude)), 
+          parseFloat(String(s.longitude))
+        );
+      }
+    });
+
+    syncTransaction(data);
+    console.log(`Sync complete. Processed ${data.length} stations.`);
+    res.json({ success: true, count: data.length });
+  } catch (error) {
+    console.error('Sync error:', error);
+    res.status(500).json({ error: 'Failed to sync with Google Sheets', details: error.message });
+  }
+});
+
 app.get('/health', (req, res) => {
   res.json({ status: 'ok' });
 });

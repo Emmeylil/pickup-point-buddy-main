@@ -82,3 +82,11 @@ export async function deletePickupStation(id: number): Promise<void> {
   });
   if (!response.ok) throw new Error("Failed to delete station");
 }
+
+export async function syncGoogleSheets(): Promise<{ success: boolean; count: number }> {
+  const response = await fetch("http://localhost:5000/api/sync", {
+    method: "POST",
+  });
+  if (!response.ok) throw new Error("Failed to sync with Google Sheets");
+  return response.json();
+}
