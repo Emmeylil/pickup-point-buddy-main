@@ -82,8 +82,9 @@ export default function Admin() {
         toast.success(`Synced ${result.count} stations from Google Sheets`);
         loadStations();
       }
-    } catch (error) {
-      toast.error("Failed to sync with Google Sheets");
+    } catch (error: any) {
+      const message = error.message || "Failed to sync with Google Sheets";
+      toast.error(`Sync Error: ${message}`);
     } finally {
       setSyncing(false);
     }
