@@ -2,7 +2,8 @@ import { PickupStation } from "@/types/pickup-station";
 
 export async function fetchPickupStations(): Promise<PickupStation[]> {
   try {
-    const url = "http://localhost:5000/api/pickup-stations";
+    const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
+    const url = `${API_URL}/api/pickup-stations`;
 
     const response = await fetch(url);
     if (!response.ok) throw new Error(`HTTP error ${response.status}`);
@@ -57,7 +58,8 @@ export async function fetchPickupStations(): Promise<PickupStation[]> {
 }
 
 export async function createPickupStation(station: Partial<PickupStation>): Promise<PickupStation> {
-  const response = await fetch("http://localhost:5000/api/pickup-stations", {
+  const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
+  const response = await fetch(`${API_URL}/api/pickup-stations`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(station),
@@ -67,7 +69,8 @@ export async function createPickupStation(station: Partial<PickupStation>): Prom
 }
 
 export async function updatePickupStation(id: number, station: Partial<PickupStation>): Promise<PickupStation> {
-  const response = await fetch(`http://localhost:5000/api/pickup-stations/${id}`, {
+  const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
+  const response = await fetch(`${API_URL}/api/pickup-stations/${id}`, {
     method: "PUT",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(station),
@@ -77,14 +80,16 @@ export async function updatePickupStation(id: number, station: Partial<PickupSta
 }
 
 export async function deletePickupStation(id: number): Promise<void> {
-  const response = await fetch(`http://localhost:5000/api/pickup-stations/${id}`, {
+  const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
+  const response = await fetch(`${API_URL}/api/pickup-stations/${id}`, {
     method: "DELETE",
   });
   if (!response.ok) throw new Error("Failed to delete station");
 }
 
 export async function syncGoogleSheets(): Promise<{ success: boolean; count: number }> {
-  const response = await fetch("http://localhost:5000/api/sync", {
+  const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
+  const response = await fetch(`${API_URL}/api/sync`, {
     method: "POST",
   });
   if (!response.ok) throw new Error("Failed to sync with Google Sheets");
