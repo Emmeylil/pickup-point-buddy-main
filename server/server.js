@@ -105,6 +105,49 @@ app.get('/api/pickup-stations', (req, res) => {
   }
 });
 
+app.post('/api/pickup-stations', (req, res) => {
+  try {
+    const { name, timeOpenedWeek, timeOpenedWeekend, number, address, state, email, landmark, latitude, longitude } = req.body;
+    const info = db.prepare(`
+      INSERT INTO pickup_stations (name, timeOpenedWeek, timeOpenedWeekend, number, address, state, email, landmark, latitude, longitude)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `).run(name, timeOpenedWeek, timeOpenedWeekend, number, address, state, email, landmark, latitude, longitude);
+    
+    res.status(201).json({ id: info.lastInsertRowid, ...req.body });
+  } catch (error) {
+    console.error('Error creating pickup station:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
+app.put('/api/pickup-stations/:id', (req, res) => {
+  try {
+    const { id } = req.params;
+    const { name, timeOpenedWeek, timeOpenedWeekend, number, address, state, email, landmark, latitude, longitude } = req.body;
+    db.prepare(`
+      UPDATE pickup_stations 
+      SET name = ?, timeOpenedWeek = ?, timeOpenedWeekend = ?, number = ?, address = ?, state = ?, email = ?, landmark = ?, latitude = ?, longitude = ?
+      WHERE id = ?
+    `).run(name, timeOpenedWeek, timeOpenedWeekend, number, address, state, email, landmark, latitude, longitude, id);
+    
+    res.json({ id, ...req.body });
+  } catch (error) {
+    console.error('Error updating pickup station:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
+app.delete('/api/pickup-stations/:id', (req, res) => {
+  try {
+    const { id } = req.params;
+    db.prepare('DELETE FROM pickup_stations WHERE id = ?').run(id);
+    res.status(204).end();
+  } catch (error) {
+    console.error('Error deleting pickup station:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
 app.get('/health', (req, res) => {
   res.json({ status: 'ok' });
 });

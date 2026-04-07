@@ -55,3 +55,30 @@ export async function fetchPickupStations(): Promise<PickupStation[]> {
     ];
   }
 }
+
+export async function createPickupStation(station: Partial<PickupStation>): Promise<PickupStation> {
+  const response = await fetch("http://localhost:5000/api/pickup-stations", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(station),
+  });
+  if (!response.ok) throw new Error("Failed to create station");
+  return response.json();
+}
+
+export async function updatePickupStation(id: number, station: Partial<PickupStation>): Promise<PickupStation> {
+  const response = await fetch(`http://localhost:5000/api/pickup-stations/${id}`, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(station),
+  });
+  if (!response.ok) throw new Error("Failed to update station");
+  return response.json();
+}
+
+export async function deletePickupStation(id: number): Promise<void> {
+  const response = await fetch(`http://localhost:5000/api/pickup-stations/${id}`, {
+    method: "DELETE",
+  });
+  if (!response.ok) throw new Error("Failed to delete station");
+}
