@@ -8,33 +8,28 @@ import { PickupStation } from "@/types/pickup-station";
 import { PickupStationCard } from "./PickupStationCard";
 import { PickupStationMap } from "./PickupStationMap";
 import { JumiaInfoSection } from "./JumiaInfoSection";
-import { fetchPickupStations } from "@/services/googleSheets";
+import { useQuery } from "@tanstack/react-query";
+import { fetchPickupStations, getCachedPickupStations } from "@/services/googleSheets";
 
 export function PickupStationLocator() {
-  const [stations, setStations] = useState<PickupStation[]>([]);
+  const { 
+    data: stations = [], 
+    isLoading, 
+    isFetching,
+    error 
+  } = useQuery({
+    queryKey: ['pickup-stations'],
+    queryFn: fetchPickupStations,
+    staleTime: 60 * 60 * 1000, // 1 hour
+    initialData: () => getCachedPickupStations() || undefined,
+    refetchOnWindowFocus: false,
+  });
+
   const [filteredStations, setFilteredStations] = useState<PickupStation[]>([]);
   const [selectedStation, setSelectedStation] = useState<PickupStation>();
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedState, setSelectedState] = useState<string>("");
-  const [loading, setLoading] = useState(true);
   const [viewMode, setViewMode] = useState<'list' | 'map'>('list');
-
-  useEffect(() => {
-    loadStations();
-  }, []);
-
-  const loadStations = async () => {
-    try {
-      setLoading(true);
-      const data = await fetchPickupStations();
-      setStations(data);
-      setFilteredStations(data);
-    } catch (error) {
-      console.error('Failed to load stations:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   useEffect(() => {
     let filtered = stations;
@@ -61,7 +56,8 @@ export function PickupStationLocator() {
     setViewMode('map');
   };
 
-  if (loading) {
+  // Only show full loader if we have NO data at all (not even cached)
+  if (isLoading && stations.length === 0) {
     return (
       <div className="min-h-screen bg-gradient-subtle flex items-center justify-center">
         <div className="text-center">
@@ -151,15 +147,22 @@ export function PickupStationLocator() {
 
       {/* Jumia Info Section */}
       <JumiaInfoSection />
-
       {/* Content */}
       <div className="container mx-auto px-4 py-6">
         <div className="mb-4 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <MapPin className="h-5 w-5 text-jumia-orange" />
-            <span className="text-sm text-jumia-gray">
-              {filteredStations.length} pickup station{filteredStations.length !== 1 ? 's' : ''} found
-            </span>
+          <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2">
+              <MapPin className="h-5 w-5 text-jumia-orange" />
+              <span className="text-sm text-jumia-gray">
+                {filteredStations.length} pickup station{filteredStations.length !== 1 ? 's' : ''} found
+              </span>
+            </div>
+            {isFetching && !isLoading && (
+              <div className="flex items-center gap-2 text-xs text-jumia-orange animate-pulse">
+                <Loader2 className="h-3 w-3 animate-spin" />
+                <span>Updating data...</span>
+              </div>
+            )}
           </div>
           {selectedStation && viewMode === 'map' && (
             <Badge variant="secondary" className="bg-jumia-orange/10 text-jumia-orange">
