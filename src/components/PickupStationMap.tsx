@@ -34,7 +34,7 @@ interface PickupStationMapProps {
   selectedStation?: PickupStation;
 }
 
-export function PickupStationMap({ stations, selectedStation }: PickupStationMapProps) {
+export default function PickupStationMap({ stations, selectedStation }: PickupStationMapProps) {
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<L.Map | null>(null);
   const markers = useRef<L.Marker[]>([]);

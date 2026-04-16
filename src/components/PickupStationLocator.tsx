@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo, lazy, Suspense } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -6,10 +6,12 @@ import { Badge } from "@/components/ui/badge";
 import { Search, MapPin, Loader2 } from "lucide-react";
 import { PickupStation } from "@/types/pickup-station";
 import { PickupStationCard } from "./PickupStationCard";
-import { PickupStationMap } from "./PickupStationMap";
 import { JumiaInfoSection } from "./JumiaInfoSection";
+import { PickupStationGridSkeleton } from "./PickupStationSkeleton";
 import { useQuery } from "@tanstack/react-query";
 import { fetchPickupStations, getCachedPickupStations } from "@/services/googleSheets";
+
+const PickupStationMap = lazy(() => import("./PickupStationMap"));
 
 export function PickupStationLocator() {
   const { 
@@ -25,20 +27,29 @@ export function PickupStationLocator() {
     refetchOnWindowFocus: false,
   });
 
-  const [filteredStations, setFilteredStations] = useState<PickupStation[]>([]);
   const [selectedStation, setSelectedStation] = useState<PickupStation>();
   const [searchQuery, setSearchQuery] = useState("");
+  const [debouncedSearchQuery, setDebouncedSearchQuery] = useState("");
   const [selectedState, setSelectedState] = useState<string>("");
   const [viewMode, setViewMode] = useState<'list' | 'map'>('list');
 
+  // Search debouncing
   useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearchQuery(searchQuery);
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
+
+  const filteredStations = useMemo(() => {
     let filtered = stations;
 
-    if (searchQuery) {
+    if (debouncedSearchQuery) {
+      const query = debouncedSearchQuery.toLowerCase();
       filtered = filtered.filter(station =>
-        station.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        station.address.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        station.landmark.toLowerCase().includes(searchQuery.toLowerCase())
+        station.name.toLowerCase().includes(query) ||
+        station.address.toLowerCase().includes(query) ||
+        station.landmark.toLowerCase().includes(query)
       );
     }
 
@@ -46,24 +57,26 @@ export function PickupStationLocator() {
       filtered = filtered.filter(station => station.state === selectedState);
     }
 
-    setFilteredStations(filtered);
-  }, [searchQuery, selectedState, stations]);
+    return filtered;
+  }, [debouncedSearchQuery, selectedState, stations]);
 
-  const uniqueStates = Array.from(new Set(stations.map(station => station.state)));
+  const uniqueStates = useMemo(() => 
+    Array.from(new Set(stations.map(station => station.state))),
+    [stations]
+  );
 
   const handleViewOnMap = (station: PickupStation) => {
     setSelectedStation(station);
     setViewMode('map');
   };
 
-  // Only show full loader if we have NO data at all (not even cached)
+  // Optimized loader: Only show full loader if we have NO data at all (not even cached)
   if (isLoading && stations.length === 0) {
     return (
-      <div className="min-h-screen bg-gradient-subtle flex items-center justify-center">
-        <div className="text-center">
-          <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4 text-jumia-orange" />
-          <p className="text-jumia-gray">Loading pickup stations...</p>
-        </div>
+      <div className="min-h-screen bg-gradient-subtle flex flex-col pt-20 items-center">
+        <Loader2 className="h-10 w-10 animate-spin text-jumia-orange mb-4" />
+        <h2 className="text-xl font-semibold text-jumia-dark mb-2">Preparing your experience</h2>
+        <p className="text-jumia-gray">Fetching pickup stations near you...</p>
       </div>
     );
   }
@@ -171,7 +184,9 @@ export function PickupStationLocator() {
           )}
         </div>
 
-        {viewMode === 'list' ? (
+        {isLoading && stations.length > 0 ? (
+          <PickupStationGridSkeleton />
+        ) : viewMode === 'list' ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredStations.map((station, index) => (
               <PickupStationCard
@@ -182,11 +197,18 @@ export function PickupStationLocator() {
             ))}
           </div>
         ) : (
-          <div className="h-[600px]">
-            <PickupStationMap
-              stations={filteredStations}
-              selectedStation={selectedStation}
-            />
+          <div className="h-[600px] border rounded-xl overflow-hidden shadow-sm bg-white">
+            <Suspense fallback={
+              <div className="w-full h-full flex flex-col items-center justify-center bg-jumia-light-gray/30">
+                <Loader2 className="h-8 w-8 animate-spin text-jumia-orange mb-2" />
+                <p className="text-sm text-jumia-gray">Initializing interactive map...</p>
+              </div>
+            }>
+              <PickupStationMap
+                stations={filteredStations}
+                selectedStation={selectedStation}
+              />
+            </Suspense>
           </div>
         )}
 
