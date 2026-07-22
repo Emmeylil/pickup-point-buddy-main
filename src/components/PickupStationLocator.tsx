@@ -22,8 +22,8 @@ export function PickupStationLocator() {
   } = useQuery({
     queryKey: ['pickup-stations'],
     queryFn: fetchPickupStations,
-    staleTime: 60 * 60 * 1000, // 1 hour
-    initialData: () => getCachedPickupStations() || undefined,
+    staleTime: 5 * 60 * 1000, // 5 minutes stale time
+    placeholderData: () => getCachedPickupStations() || undefined,
     refetchOnWindowFocus: false,
   });
 

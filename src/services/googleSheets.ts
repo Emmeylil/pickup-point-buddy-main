@@ -9,7 +9,7 @@ interface CacheData {
 }
 
 export async function fetchPickupStations(): Promise<PickupStation[]> {
-  const GOOGLE_SHEET_URL = "https://script.google.com/macros/s/AKfycbxzlmIKMT0beysDKKgcTat_grcgOt8bHRw_yDhFJi74EBuwPkeKBclJPtaS9ScivWBF/exec";
+  const GOOGLE_SHEET_URL = import.meta.env.VITE_GOOGLE_SHEET_URL || "https://script.google.com/macros/s/AKfycbxzlmIKMT0beysDKKgcTat_grcgOt8bHRw_yDhFJi74EBuwPkeKBclJPtaS9ScivWBF/exec";
 
   // Try to get cached data first
   const cached = localStorage.getItem(CACHE_KEY);
@@ -35,18 +35,33 @@ export async function fetchPickupStations(): Promise<PickupStation[]> {
     
     const rawData = await response.json();
     
-    // Map data to ensure consistency
-    const data = rawData.map((s: any) => ({
-      ...s,
-      timeOpenedWeek: s.week || s.timeOpenedWeek,
-      timeOpenedWeekend: s.weekend || s.timeOpenedWeekend
-    })) as PickupStation[];
+    if (!Array.isArray(rawData)) {
+      throw new Error("Raw data is not a valid array");
+    }
+    
+    // Map and sanitize data to ensure consistency and prevent runtime crashes
+    const data = rawData
+      .filter((s: any) => s && typeof s === 'object' && s.name)
+      .map((s: any) => ({
+        name: String(s.name).trim(),
+        timeOpenedWeek: String(s.week || s.timeOpenedWeek || "").trim(),
+        timeOpenedWeekend: String(s.weekend || s.timeOpenedWeekend || "").trim(),
+        number: s.number ? String(s.number).trim() : "",
+        address: String(s.address || "").trim(),
+        state: String(s.state || "").trim(),
+        email: String(s.email || "").trim(),
+        landmark: String(s.landmark || "").trim(),
+        latitude: parseFloat(String(s.latitude)) || 0,
+        longitude: parseFloat(String(s.longitude)) || 0
+      })) as PickupStation[];
 
-    // Update cache
-    localStorage.setItem(CACHE_KEY, JSON.stringify({
-      timestamp: Date.now(),
-      data
-    }));
+    if (data.length > 0) {
+      // Update cache only if we have actual valid records
+      localStorage.setItem(CACHE_KEY, JSON.stringify({
+        timestamp: Date.now(),
+        data
+      }));
+    }
 
     return data;
   } catch (error) {
@@ -109,7 +124,10 @@ export function getCachedPickupStations(): PickupStation[] | null {
   if (!cached) return null;
   try {
     const { data }: CacheData = JSON.parse(cached);
-    return data;
+    if (Array.isArray(data) && data.length > 0) {
+      return data;
+    }
+    return null;
   } catch (e) {
     return null;
   }
