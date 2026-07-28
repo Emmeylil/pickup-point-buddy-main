@@ -18,11 +18,10 @@ export async function fetchPickupStations(): Promise<PickupStation[]> {
       const { timestamp, data }: CacheData = JSON.parse(cached);
       const isExpired = Date.now() - timestamp > CACHE_EXPIRY;
       
-      // If data is fresh, we could return it immediately.
-      // But we will mostly rely on TanStack Query for the "stale-while-revalidate" pattern.
+      // If data is fresh, return it immediately to optimize load time.
       if (!isExpired) {
         console.log("Using fresh cached data");
-        // return data; // We'll let the query hook handle this
+        return data;
       }
     } catch (e) {
       console.error("Failed to parse cache", e);
