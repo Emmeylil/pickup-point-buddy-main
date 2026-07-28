@@ -11,24 +11,23 @@ All colors MUST be HSL.
 @layer base {
   :root {
     --background: 0 0% 100%;
-    ;
-    --foreground: 51 51 51;
+    --foreground: 0 0% 15%;
 
     /* Card now uses Jumia Orange */
-    --card: 29 85% 55%;
+    --card: 36 100% 50%;
     /* Jumia Orange */
     --card-foreground: 0 0% 100%;
     /* White text on orange */
 
     --popover: 255 255 255;
-    --popover-foreground: 51 51 51;
+    --popover-foreground: 0 0% 15%;
 
     --primary: 23 162 184;
     --primary-foreground: 0 0% 100%;
     --primary-glow: 23 162 184;
 
     --secondary: 210 17% 97%;
-    --secondary-foreground: 51 51 51;
+    --secondary-foreground: 0 0% 15%;
 
     --muted: 210 17% 97%;
     --muted-foreground: 210 7% 46%;
@@ -36,22 +35,22 @@ All colors MUST be HSL.
 
 
     --accent: 210 17% 97%;
-    --accent-foreground: 29 100% 50%;
+    --accent-foreground: 36 100% 50%;
 
     --destructive: 0 62% 45%;
     --destructive-foreground: 0 0% 100%;
 
     --border: 210 17% 90%;
     --input: 210 17% 90%;
-    --ring: 29 85% 55%;
+    --ring: 36 100% 50%;
 
     --radius: 0.5rem;
 
     /* Jumia theme colors */
-    --jumia-orange: 255 152 0;
-    --jumia-orange-light: 29 100% 72%;
+    --jumia-orange: 36 100% 50%; /* #ff9900 */
+    --jumia-orange-light: 36 100% 72%;
     --jumia-dark: 0 0% 20%;
-    --jumia-gray: 255 152 0;
+    --jumia-gray: 0 0% 38%;
     --jumia-light-gray: 210 17% 97%;
 
     /* Custom design tokens */
@@ -83,14 +82,14 @@ All colors MUST be HSL.
     --background: 222.2 84% 4.9%;
     --foreground: 210 40% 98%;
 
-    --card: 29 100% 50%;
+    --card: 36 100% 50%;
     /* Keep Jumia Orange even in dark mode */
     --card-foreground: 0 0% 100%;
 
     --popover: 222.2 84% 4.9%;
     --popover-foreground: 210 40% 98%;
 
-    --primary: 29 85% 55%;
+    --primary: 36 100% 50%;
     --primary-foreground: 0 0% 100%;
 
     --secondary: 217.2 32.6% 17.5%;
@@ -107,7 +106,7 @@ All colors MUST be HSL.
 
     --border: 217.2 32.6% 17.5%;
     --input: 217.2 32.6% 17.5%;
-    --ring: 29 85% 55%;
+    --ring: 36 100% 50%;
 
     --sidebar-background: 240 5.9% 10%;
     --sidebar-foreground: 240 4.8% 95.9%;
@@ -116,8 +115,8 @@ All colors MUST be HSL.
     --sidebar-accent: 240 3.7% 15.9%;
     --sidebar-accent-foreground: 240 4.8% 95.9%;
     --sidebar-border: 240 3.7% 15.9%;
-    --sidebar-ring: 29 100% 50%;
-    --card: 29 100% 50%;
+    --sidebar-ring: 36 100% 50%;
+    --card: 36 100% 50%;
 
   }
 }
@@ -129,5 +128,11 @@ All colors MUST be HSL.
 
   body {
     @apply bg-background text-foreground;
+    font-family: "Helvetica Neue-Black", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  }
+
+  h1, h2, h3, h4, h5, h6, .font-heading {
+    font-family: "Helvetica Neue-Black", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-weight: 900 !important; /* Helvetica Black */
   }
 }
