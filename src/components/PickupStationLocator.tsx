@@ -160,6 +160,11 @@ export function PickupStationLocator() {
 
       {/* Main Workspace Container */}
       <main className="container mx-auto px-4 py-4 flex-1 flex flex-col">
+        {/* Jumia Information & Benefits Section (Positioned FIRST before region controls, station list & map) */}
+        <section className="mb-6">
+          <JumiaInfoSection />
+        </section>
+
         {/* Region Selection Controls - Directly above station list and map */}
         <section className="bg-white p-4 rounded-xl border border-gray-200 shadow-xs mb-4">
           <div className="flex items-center justify-between mb-3">
@@ -335,11 +340,6 @@ export function PickupStationLocator() {
             )}
           </div>
         )}
-
-        {/* Jumia Information & Benefits Section (Positioned at bottom below list & map) */}
-        <section className="mt-8">
-          <JumiaInfoSection />
-        </section>
       </main>
     </div>
   );
