@@ -14,8 +14,8 @@ interface PickupStationCardProps {
 export function PickupStationCard({ station, index, isSelected, onViewOnMap }: PickupStationCardProps) {
   return (
     <Card 
-      className={`transition-all duration-300 border-border/60 hover:border-jumia-orange/50 hover:shadow-md cursor-pointer ${
-        isSelected ? 'ring-2 ring-jumia-orange bg-orange-50/20' : 'bg-white'
+      className={`transition-all duration-300 border-border/60 hover:border-jumia-orange hover:shadow-md cursor-pointer ${
+        isSelected ? 'ring-2 ring-jumia-orange bg-orange-50/30 border-jumia-orange' : 'bg-white'
       }`}
       onClick={() => onViewOnMap(station)}
     >
@@ -23,12 +23,12 @@ export function PickupStationCard({ station, index, isSelected, onViewOnMap }: P
         <div className="flex items-start justify-between gap-2">
           <div className="flex items-start gap-3">
             {typeof index === 'number' && (
-              <div className="w-7 h-7 rounded-full bg-jumia-orange text-white font-bold text-xs flex items-center justify-center shrink-0 shadow-sm mt-0.5">
+              <div className="w-7 h-7 rounded-full bg-jumia-orange text-white font-bold text-xs flex items-center justify-center shrink-0 shadow-xs mt-0.5">
                 {index + 1}
               </div>
             )}
             <div>
-              <CardTitle className="text-base font-bold text-jumia-dark leading-tight flex items-center gap-1 group">
+              <CardTitle className="text-base font-extrabold text-jumia-dark leading-tight flex items-center gap-1 group">
                 <span>{station.name}</span>
               </CardTitle>
               <div className="flex items-center gap-1 text-jumia-gray text-xs mt-1">
@@ -42,13 +42,13 @@ export function PickupStationCard({ station, index, isSelected, onViewOnMap }: P
               )}
             </div>
           </div>
-          <ChevronRight className="h-5 w-5 text-jumia-gray/50 shrink-0 self-center" />
+          <ChevronRight className="h-5 w-5 text-gray-400 shrink-0 self-center" />
         </div>
       </CardHeader>
       
       <CardContent className="pb-4 pt-2 px-4 space-y-3">
         <div className="flex items-center justify-between text-xs pt-1 border-t border-gray-100">
-          <div className="flex items-center gap-1.5 text-emerald-600 font-medium">
+          <div className="flex items-center gap-1.5 text-emerald-600 font-semibold">
             <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
             <span>Open</span>
           </div>
@@ -61,12 +61,11 @@ export function PickupStationCard({ station, index, isSelected, onViewOnMap }: P
         <div className="flex gap-2 pt-1">
           <Button
             size="sm"
-            variant="outline"
             onClick={(e) => {
               e.stopPropagation();
               onViewOnMap(station);
             }}
-            className="flex-1 text-xs h-8 border-gray-200 hover:bg-jumia-orange hover:text-white hover:border-jumia-orange transition-colors"
+            className="flex-1 text-xs h-8.5 bg-jumia-orange text-white font-semibold hover:bg-jumia-orange/90 border-none shadow-xs transition-all active:scale-[0.98]"
           >
             <Navigation className="h-3.5 w-3.5 mr-1" />
             View Map
@@ -74,7 +73,7 @@ export function PickupStationCard({ station, index, isSelected, onViewOnMap }: P
           <Button
             size="sm"
             asChild
-            className="flex-1 text-xs h-8 bg-black text-white hover:bg-black/90"
+            className="flex-1 text-xs h-8.5 bg-black text-white font-semibold hover:bg-black/90 border-none shadow-xs transition-all active:scale-[0.98]"
             onClick={(e) => e.stopPropagation()}
           >
             <a
@@ -90,4 +89,5 @@ export function PickupStationCard({ station, index, isSelected, onViewOnMap }: P
     </Card>
   );
 }
+
 
