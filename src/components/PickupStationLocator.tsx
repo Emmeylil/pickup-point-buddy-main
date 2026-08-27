@@ -103,10 +103,10 @@ export function PickupStationLocator() {
               </div>
               <div>
                 <h1 className="text-xl font-extrabold text-jumia-dark tracking-tight">
-                  Jumia Pickup Station Locator
+                  Find the stations close to you
                 </h1>
                 <p className="text-xs text-jumia-gray">
-                  Find convenient order collection points near you
+                  Locate the most convenient Jumia pickup station near you for hassle-free order collection
                 </p>
               </div>
             </div>

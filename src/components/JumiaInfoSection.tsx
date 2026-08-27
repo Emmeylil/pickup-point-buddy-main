@@ -52,7 +52,7 @@ export function JumiaInfoSection() {
           </Card>
 
           {/* Safety Measures */}
-          {/* <Card className="border-none shadow-card">
+          <Card className="border-none shadow-card">
             <CardContent className="p-6">
               <div className="flex items-start gap-3">
                 <Shield className="h-6 w-6 text-jumia-orange mt-1 flex-shrink-0" />
@@ -75,7 +75,7 @@ export function JumiaInfoSection() {
                 </div>
               </div>
             </CardContent>
-          </Card> */}
+          </Card>
         </div>
       </div>
     </div>
