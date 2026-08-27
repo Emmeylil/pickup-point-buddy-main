@@ -239,9 +239,9 @@ export function PickupStationLocator() {
             </CardContent>
           </Card>
         ) : (
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 flex-1 min-h-[500px] mb-8">
+          <div className="grid grid-cols-12 gap-2 sm:gap-4 lg:gap-5 flex-1 min-h-[400px] mb-8">
             {/* Station List Column */}
-            <div className="lg:col-span-5 space-y-3 overflow-y-auto max-h-[650px] pr-1 scrollbar-thin">
+            <div className="col-span-6 lg:col-span-5 space-y-2 sm:space-y-3 overflow-y-auto max-h-[500px] sm:max-h-[650px] pr-0.5 sm:pr-1 scrollbar-thin">
               {filteredStations.map((station, index) => (
                 <PickupStationCard
                   key={`${station.name}-${index}`}
@@ -254,7 +254,7 @@ export function PickupStationLocator() {
             </div>
 
             {/* Interactive Map Column */}
-            <div className="lg:col-span-7 h-[650px] rounded-xl overflow-hidden shadow-xs sticky top-20">
+            <div className="col-span-6 lg:col-span-7 h-[500px] sm:h-[650px] rounded-xl overflow-hidden shadow-xs sticky top-16 sm:top-20">
               <Suspense fallback={
                 <div className="w-full h-full flex flex-col items-center justify-center bg-gray-100 rounded-xl">
                   <Loader2 className="h-8 w-8 animate-spin text-jumia-orange mb-2" />
