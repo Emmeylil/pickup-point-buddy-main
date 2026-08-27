@@ -7,34 +7,47 @@ import { Card } from "@/components/ui/card";
 // Default Lagos coords as fallback for map view
 const DEFAULT_CENTER: [number, number] = [6.5244, 3.3792];
 
-// Fix for default markers in Leaflet
-const defaultIcon = L.icon({
-  iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon.png',
-  iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon-2x.png',
-  shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png',
-  iconSize: [25, 41],
-  iconAnchor: [12, 41],
-  popupAnchor: [1, -34],
-  shadowSize: [41, 41]
-});
-
-const selectedIcon = L.icon({
-  iconUrl: 'data:image/svg+xml;base64,' + btoa(`
-    <svg width="25" height="41" viewBox="0 0 25 41" xmlns="http://www.w3.org/2000/svg">
-      <path fill="#3b82f6" stroke="#1e40af" stroke-width="1" d="M12.5 0C5.6 0 0 5.6 0 12.5c0 8.5 12.5 28.5 12.5 28.5s12.5-20 12.5-28.5C25 5.6 19.4 0 12.5 0zm0 17.5c-2.8 0-5-2.2-5-5s2.2-5 5-5 5 2.2 5 5-2.2 5-5 5z"/>
-    </svg>
-  `),
-  iconSize: [25, 41],
-  iconAnchor: [12, 41],
-  popupAnchor: [1, -34]
-});
+// Custom Numbered Icon Generator
+const createNumberedIcon = (num: number, isSelected: boolean) => {
+  const bgColor = isSelected ? '#000000' : '#ff9900';
+  const borderColor = isSelected ? '#ff9900' : '#ffffff';
+  
+  return L.divIcon({
+    className: 'custom-numbered-marker',
+    html: `
+      <div style="
+        background-color: ${bgColor}; 
+        color: white; 
+        width: 32px; 
+        height: 32px; 
+        border-radius: 50%; 
+        display: flex; 
+        align-items: center; 
+        justify-content: center; 
+        font-weight: 800; 
+        font-size: 13px; 
+        border: 2px solid ${borderColor}; 
+        box-shadow: 0 3px 8px rgba(0,0,0,0.3); 
+        font-family: system-ui, -apple-system, sans-serif;
+        transition: transform 0.2s ease;
+        ${isSelected ? 'transform: scale(1.15);' : ''}
+      ">
+        ${num}
+      </div>
+    `,
+    iconSize: [32, 32],
+    iconAnchor: [16, 16],
+    popupAnchor: [0, -16]
+  });
+};
 
 interface PickupStationMapProps {
   stations: PickupStation[];
   selectedStation?: PickupStation;
+  onSelectStation?: (station: PickupStation) => void;
 }
 
-export default function PickupStationMap({ stations, selectedStation }: PickupStationMapProps) {
+export default function PickupStationMap({ stations, selectedStation, onSelectStation }: PickupStationMapProps) {
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<L.Map | null>(null);
   const markers = useRef<L.Marker[]>([]);
@@ -49,7 +62,10 @@ export default function PickupStationMap({ stations, selectedStation }: PickupSt
   useEffect(() => {
     if (!mapContainer.current) return;
 
-    map.current = L.map(mapContainer.current).setView(DEFAULT_CENTER, 10);
+    map.current = L.map(mapContainer.current, {
+      zoomControl: true,
+      scrollWheelZoom: true,
+    }).setView(DEFAULT_CENTER, 10);
 
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       attribution: '&copy; OpenStreetMap contributors'
@@ -69,9 +85,9 @@ export default function PickupStationMap({ stations, selectedStation }: PickupSt
     markers.current.forEach(marker => marker.remove());
     markers.current = [];
 
-    stations.forEach((station) => {
+    stations.forEach((station, index) => {
       const isSelected = selectedStation?.name === station.name;
-      const icon = isSelected ? selectedIcon : defaultIcon;
+      const icon = createNumberedIcon(index + 1, isSelected);
 
       const lat = parseFloat(String(station.latitude));
       const lng = parseFloat(String(station.longitude));
@@ -81,19 +97,20 @@ export default function PickupStationMap({ stations, selectedStation }: PickupSt
         !isNaN(lat) && !isNaN(lng) ? [lat, lng] : DEFAULT_CENTER,
         { icon }
       ).bindPopup(`
-        <div style="padding: 8px; min-width: 220px;">
-          <h3 style="font-weight: 600; font-size: 14px; margin-bottom: 4px;">${station.name}</h3>
-          <p style="font-size: 12px; color: #666; margin-bottom: 4px;">${station.address}</p>
-          <p style="font-size: 12px; color: #666; margin-bottom: 4px;">📞 ${station.number}</p>
-          <p style="font-size: 12px; color: #666; margin-bottom: 2px;">⏰ <strong>Weekdays:</strong> ${station.timeOpenedWeek || "Closed"}</p>
-          <p style="font-size: 12px; color: #666; margin-bottom: 4px;">⏰ <strong>Weekends:</strong> ${station.timeOpenedWeekend || "Closed"}</p>
-          ${station.landmark ? `<p style="font-size: 12px; color: #888; margin-top: 4px;">📍 ${station.landmark}</p>` : ''}
+        <div style="padding: 6px; min-width: 200px;">
+          <div style="display:flex; align-items:center; gap:6px; margin-bottom: 4px;">
+            <span style="background:#ff9900; color:white; border-radius:50%; width:20px; height:20px; font-size:11px; font-weight:bold; display:inline-flex; align-items:center; justify-content:center;">${index + 1}</span>
+            <h3 style="font-weight: 700; font-size: 14px; margin: 0; color: #111;">${station.name}</h3>
+          </div>
+          <p style="font-size: 12px; color: #555; margin-bottom: 4px;">${station.address}</p>
+          <p style="font-size: 12px; color: #555; margin-bottom: 2px;">⏰ <strong>Weekdays:</strong> ${station.timeOpenedWeek || "Closed"}</p>
+          ${station.landmark ? `<p style="font-size: 11px; color: #777; margin-top: 2px;">📍 ${station.landmark}</p>` : ''}
           ${directionsLink
           ? `<a 
                 href="${directionsLink}" 
                 target="_blank" 
                 rel="noopener noreferrer"
-                style="display:inline-block; margin-top:8px; font-size:13px; color:#2563eb; font-weight:500; text-decoration:underline;"
+                style="display:inline-block; margin-top:6px; font-size:12px; color:#ff9900; font-weight:600; text-decoration:none;"
               >
                 🧭 Get Directions
               </a>`
@@ -102,18 +119,22 @@ export default function PickupStationMap({ stations, selectedStation }: PickupSt
         </div>
       `).addTo(map.current!);
 
+      marker.on('click', () => {
+        onSelectStation?.(station);
+      });
+
       markers.current.push(marker);
     });
 
-    // Fit view
+    // Fit view bounds smoothly
     if (markers.current.length > 0) {
       const group = new L.FeatureGroup(markers.current);
-      map.current.fitBounds(group.getBounds(), { padding: [20, 20] });
+      map.current.fitBounds(group.getBounds(), { padding: [30, 30], maxZoom: 14 });
     } else {
       map.current.setView(DEFAULT_CENTER, 10);
     }
 
-    setTimeout(() => map.current?.invalidateSize(), 200);
+    setTimeout(() => map.current?.invalidateSize(), 250);
   }, [stations, selectedStation]);
 
   // Focus on selected station
@@ -124,17 +145,17 @@ export default function PickupStationMap({ stations, selectedStation }: PickupSt
     const lng = parseFloat(String(selectedStation.longitude));
 
     if (!isNaN(lat) && !isNaN(lng)) {
-      map.current.setView([lat, lng], 15);
+      map.current.setView([lat, lng], 15, { animate: true });
     }
   }, [selectedStation]);
 
   return (
-    <Card className="h-[500px] overflow-hidden">
+    <Card className="w-full h-full min-h-[450px] overflow-hidden border border-border/60 shadow-sm relative">
       <div
         ref={mapContainer}
-        className="w-full h-full"
-        style={{ borderRadius: '8px' }}
+        className="w-full h-full min-h-[450px]"
       />
     </Card>
   );
 }
+
