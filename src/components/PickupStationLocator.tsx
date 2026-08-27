@@ -3,7 +3,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Search, MapPin, Loader2, ChevronLeft, ChevronRight, Layers, List, Map as MapIcon } from "lucide-react";
+import { Search, MapPin, Loader2, ChevronLeft, ChevronRight } from "lucide-react";
 import { PickupStation } from "@/types/pickup-station";
 import { PickupStationCard } from "./PickupStationCard";
 import { JumiaInfoSection } from "./JumiaInfoSection";
@@ -30,7 +30,6 @@ export function PickupStationLocator() {
   const [searchQuery, setSearchQuery] = useState("");
   const [debouncedSearchQuery, setDebouncedSearchQuery] = useState("");
   const [selectedState, setSelectedState] = useState<string>("");
-  const [viewMode, setViewMode] = useState<'split' | 'list' | 'map'>('split');
   const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   // Search debouncing
@@ -67,10 +66,6 @@ export function PickupStationLocator() {
 
   const handleViewOnMap = (station: PickupStation) => {
     setSelectedStation(station);
-    // On small screens, switch to map view when clicking view on map if in list mode
-    if (window.innerWidth < 1024 && viewMode === 'list') {
-      setViewMode('map');
-    }
   };
 
   const scrollRegions = (direction: 'left' | 'right') => {
@@ -121,37 +116,6 @@ export function PickupStationLocator() {
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="pl-9 h-10 bg-gray-50 border-gray-200 focus:bg-white focus:border-jumia-orange text-sm rounded-lg"
                 />
-              </div>
-
-              {/* View Toggle */}
-              <div className="hidden sm:flex bg-gray-100 p-1 rounded-lg border border-gray-200 shrink-0">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => setViewMode('split')}
-                  className={`h-8 text-xs px-2.5 ${viewMode === 'split' ? 'bg-white text-jumia-dark shadow-xs font-semibold' : 'text-gray-600'}`}
-                >
-                  <Layers className="h-3.5 w-3.5 mr-1" />
-                  Split
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => setViewMode('list')}
-                  className={`h-8 text-xs px-2.5 ${viewMode === 'list' ? 'bg-white text-jumia-dark shadow-xs font-semibold' : 'text-gray-600'}`}
-                >
-                  <List className="h-3.5 w-3.5 mr-1" />
-                  List
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => setViewMode('map')}
-                  className={`h-8 text-xs px-2.5 ${viewMode === 'map' ? 'bg-white text-jumia-dark shadow-xs font-semibold' : 'text-gray-600'}`}
-                >
-                  <MapIcon className="h-3.5 w-3.5 mr-1" />
-                  Map
-                </Button>
               </div>
             </div>
           </div>
@@ -250,29 +214,7 @@ export function PickupStationLocator() {
           </span>
         </div>
 
-        {/* Mobile View Toggle Bar (visible only on small screens) */}
-        <div className="sm:hidden flex bg-gray-200 p-1 rounded-lg border border-gray-300 mb-3">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => setViewMode('list')}
-            className={`flex-1 text-xs h-8 ${viewMode === 'list' || viewMode === 'split' ? 'bg-white text-jumia-dark shadow-xs font-semibold' : 'text-gray-600'}`}
-          >
-            <List className="h-3.5 w-3.5 mr-1" />
-            List ({filteredStations.length})
-          </Button>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => setViewMode('map')}
-            className={`flex-1 text-xs h-8 ${viewMode === 'map' ? 'bg-white text-jumia-dark shadow-xs font-semibold' : 'text-gray-600'}`}
-          >
-            <MapIcon className="h-3.5 w-3.5 mr-1" />
-            Map View
-          </Button>
-        </div>
-
-        {/* Content Section: Station List & Interactive Map side-by-side or toggled */}
+        {/* Content Section: Station List & Interactive Map */}
         {isLoading && stations.length > 0 ? (
           <PickupStationGridSkeleton />
         ) : filteredStations.length === 0 ? (
@@ -298,46 +240,34 @@ export function PickupStationLocator() {
           </Card>
         ) : (
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 flex-1 min-h-[500px] mb-8">
-            {/* List Column */}
-            {(viewMode === 'split' || viewMode === 'list') && (
-              <div className={`${
-                viewMode === 'list' 
-                  ? 'lg:col-span-12 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4' 
-                  : 'lg:col-span-5 space-y-3 overflow-y-auto max-h-[650px] pr-1 scrollbar-thin'
-              }`}>
-                {filteredStations.map((station, index) => (
-                  <PickupStationCard
-                    key={`${station.name}-${index}`}
-                    station={station}
-                    index={index}
-                    isSelected={selectedStation?.name === station.name}
-                    onViewOnMap={handleViewOnMap}
-                  />
-                ))}
-              </div>
-            )}
+            {/* Station List Column */}
+            <div className="lg:col-span-5 space-y-3 overflow-y-auto max-h-[650px] pr-1 scrollbar-thin">
+              {filteredStations.map((station, index) => (
+                <PickupStationCard
+                  key={`${station.name}-${index}`}
+                  station={station}
+                  index={index}
+                  isSelected={selectedStation?.name === station.name}
+                  onViewOnMap={handleViewOnMap}
+                />
+              ))}
+            </div>
 
-            {/* Map Column */}
-            {(viewMode === 'split' || viewMode === 'map') && (
-              <div className={`${
-                viewMode === 'map' 
-                  ? 'lg:col-span-12 h-[600px]' 
-                  : 'lg:col-span-7 h-[650px]'
-              } rounded-xl overflow-hidden shadow-xs sticky top-20`}>
-                <Suspense fallback={
-                  <div className="w-full h-full flex flex-col items-center justify-center bg-gray-100 rounded-xl">
-                    <Loader2 className="h-8 w-8 animate-spin text-jumia-orange mb-2" />
-                    <p className="text-xs text-jumia-gray">Loading map...</p>
-                  </div>
-                }>
-                  <PickupStationMap
-                    stations={filteredStations}
-                    selectedStation={selectedStation}
-                    onSelectStation={setSelectedStation}
-                  />
-                </Suspense>
-              </div>
-            )}
+            {/* Interactive Map Column */}
+            <div className="lg:col-span-7 h-[650px] rounded-xl overflow-hidden shadow-xs sticky top-20">
+              <Suspense fallback={
+                <div className="w-full h-full flex flex-col items-center justify-center bg-gray-100 rounded-xl">
+                  <Loader2 className="h-8 w-8 animate-spin text-jumia-orange mb-2" />
+                  <p className="text-xs text-jumia-gray">Loading map...</p>
+                </div>
+              }>
+                <PickupStationMap
+                  stations={filteredStations}
+                  selectedStation={selectedStation}
+                  onSelectStation={setSelectedStation}
+                />
+              </Suspense>
+            </div>
           </div>
         )}
       </main>
