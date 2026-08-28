@@ -6,7 +6,6 @@ import { Badge } from "@/components/ui/badge";
 import { Search, MapPin, Loader2, ChevronLeft, ChevronRight } from "lucide-react";
 import { PickupStation } from "@/types/pickup-station";
 import { PickupStationCard } from "./PickupStationCard";
-import { JumiaInfoSection } from "./JumiaInfoSection";
 import { PickupStationGridSkeleton } from "./PickupStationSkeleton";
 import { useQuery } from "@tanstack/react-query";
 import { fetchPickupStations, getCachedPickupStations } from "@/services/googleSheets";
@@ -90,11 +89,6 @@ export function PickupStationLocator() {
     <div className="min-h-screen bg-gray-50 flex flex-col">
       {/* Main Workspace Container */}
       <main className="container mx-auto px-4 py-4 flex-1 flex flex-col">
-        {/* Jumia Information & Benefits Section */}
-        <section className="mb-6">
-          <JumiaInfoSection />
-        </section>
-
         {/* Find Stations Search Header Segment (Placed right before Select your region) */}
         <section className="bg-white p-4 sm:p-5 rounded-xl border border-gray-200 shadow-xs mb-4">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
